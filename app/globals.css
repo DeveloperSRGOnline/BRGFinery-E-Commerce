@@ -1,0 +1,129 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: #E2CEB9;
+  --color-surface: #E2CEB9;
+  --color-surface-hover: #E2CEB9;
+  --color-accent: #1e3a2b;
+  --color-accent-hover: #14281e;
+
+  /* Theme Design Tokens for BRG Finery Palette */
+  --color-brand-bg: #E2CEB9;
+  --color-brand-bg-light: #fff8f3;
+  --color-brand-bg-mobile: #d8e6d9;
+  --color-brand-bg-footer: #cfdfd0;
+  --color-brand-accent: #1e3a2b;
+  --color-brand-accent-hover: #14281e;
+  --color-brand-accent-subtle: #42614e;
+  --color-brand-accent-muted: #2d4536;
+  --color-brand-dark: #261910;
+  --color-brand-dark-hover: #1a120b;
+  --color-brand-heading: #13241b;
+
+  --font-serif: var(--font-cormorant), Georgia, serif;
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+}
+
+@layer base {
+  :root {
+    --bg-base: #E2CEB9;
+    --bg-surface: #ffffff;
+    --bg-surface-hover: #f3f8f3;
+    --border-subtle: rgba(30, 58, 43, 0.12);
+    --border-accent: rgba(30, 58, 43, 0.25);
+    --primary-accent: #1e3a2b;
+    --text-heading: #13241b;
+    --text-body: #2d4536;
+    --text-muted: #647d7e;
+  }
+
+  body {
+    background-color: var(--bg-base);
+    color: var(--text-body);
+    font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-serif), Georgia, serif;
+    letter-spacing: -0.01em;
+  }
+}
+
+/* Glassmorphism & Light Surface Panels */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-subtle);
+  box-shadow: 0 8px 30px rgba(30, 58, 43, 0.05);
+}
+
+.glass-panel-interactive {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-subtle);
+  box-shadow: 0 8px 30px rgba(30, 58, 43, 0.05);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-panel-interactive:hover {
+  background: #ffffff;
+  border-color: rgba(30, 58, 43, 0.3);
+  box-shadow: 0 12px 35px rgba(30, 58, 43, 0.12);
+  transform: translateY(-2px);
+}
+
+/* Accent Gradients & Text */
+.gold-gradient-text {
+  color: var(--text-heading);
+}
+
+/* Buttons */
+.btn-primary {
+  background: var(--color-brand-dark);
+  color: var(--color-brand-bg);
+  font-weight: 600;
+  border-radius: 9999px;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-primary:hover {
+  border: 2px solid white;
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(30, 58, 43, 0.2);
+  color: var(--color-brand-accent);
+  font-weight: 500;
+  border-radius: 9999px;
+  backdrop-filter: blur(12px);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-secondary:hover {
+  background: #ffffff;
+  border-color: var(--color-brand-accent);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-brand-bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-brand-dark);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-brand-dark-hover);
+}
