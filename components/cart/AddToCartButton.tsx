@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { ShoppingBag, Minus, Plus, Check, AlertCircle, Loader2 } from "lucide-react";
+import { ShoppingBag, Minus, Plus, Check, ArrowRight, Loader2 } from "lucide-react";
 import { useCart } from "@/components/cart/CartContext";
 
 export default function AddToCartButton({
@@ -19,11 +19,12 @@ export default function AddToCartButton({
 
   const [quantity, setQuantity] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
-  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [isAdded, setIsAdded] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   if (stock === 0) {
     return (
-      <div className="w-full py-3.5 bg-rose-500/10 border border-rose-500/20 rounded-xl text-rose-400 text-center text-xs font-mono font-semibold uppercase tracking-wider">
+      <div className="w-full py-3.5 bg-rose-500/10 border border-rose-500/20 rounded-full text-rose-600 text-center text-xs font-mono font-semibold uppercase tracking-wider">
         Product Unavailable
       </div>
     );
@@ -35,8 +36,13 @@ export default function AddToCartButton({
       return;
     }
 
+    if (isAdded) {
+      router.push("/cart");
+      return;
+    }
+
     setIsLoading(true);
-    setMessage(null);
+    setErrorMessage(null);
 
     try {
       const res = await fetch("/api/cart/items", {
@@ -52,13 +58,12 @@ export default function AddToCartButton({
         triggerBounce();
         await refreshCartCount();
 
-        setMessage({ type: "success", text: `Added ${quantity} item(s) to cart` });
-        setTimeout(() => setMessage(null), 3500);
+        setIsAdded(true);
       } else {
-        setMessage({ type: "error", text: data.error?.message ?? "Failed to add to cart" });
+        setErrorMessage(data.error?.message ?? "Failed to add to cart");
       }
     } catch {
-      setMessage({ type: "error", text: "Network error. Please try again." });
+      setErrorMessage("Network error. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -67,38 +72,50 @@ export default function AddToCartButton({
   return (
     <div className="space-y-4 pt-2">
       {/* Quantity Selector */}
-      <div className="flex items-center justify-between">
-        <span className="text-xs font-mono text-[#71717a] uppercase">QUANTITY</span>
-        <div className="flex items-center bg-[#14141f] border border-white/10 rounded-xl overflow-hidden">
-          <button
-            id="qty-decrease-btn"
-            onClick={() => setQuantity(Math.max(1, quantity - 1))}
-            className="p-2.5 text-[#a1a1aa] hover:text-white hover:bg-white/5 transition-colors"
-          >
-            <Minus className="w-3.5 h-3.5" />
-          </button>
-          <span className="px-4 py-1 text-sm font-semibold font-mono text-[#f5f5f7]">{quantity}</span>
-          <button
-            id="qty-increase-btn"
-            onClick={() => setQuantity(Math.min(stock, quantity + 1))}
-            className="p-2.5 text-[#a1a1aa] hover:text-white hover:bg-white/5 transition-colors"
-          >
-            <Plus className="w-3.5 h-3.5" />
-          </button>
+      {!isAdded && (
+        <div className="flex items-center justify-between">
+          <span className="text-xs font-mono text-brand-heading/70 uppercase">QUANTITY</span>
+          <div className="flex items-center bg-brand-bg-light border border-brand-accent/20 rounded-full overflow-hidden px-1 py-0.5">
+            <button
+              id="qty-decrease-btn"
+              onClick={() => setQuantity(Math.max(1, quantity - 1))}
+              className="p-2 text-brand-dark hover:bg-brand-bg rounded-full transition-colors"
+            >
+              <Minus className="w-3.5 h-3.5" />
+            </button>
+            <span className="px-3 font-mono text-xs font-bold text-brand-dark">{quantity}</span>
+            <button
+              id="qty-increase-btn"
+              onClick={() => setQuantity(Math.min(stock, quantity + 1))}
+              className="p-2 text-brand-dark hover:bg-brand-bg rounded-full transition-colors"
+            >
+              <Plus className="w-3.5 h-3.5" />
+            </button>
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* Add to Cart Button */}
+      {/* Add to Cart / View Cart Button */}
       <button
         id="add-to-cart-btn"
         onClick={handleAddToCart}
         disabled={isLoading}
-        className="btn-primary w-full py-4 text-xs tracking-wider uppercase flex items-center justify-center gap-2 transform active:scale-95 transition-all"
+        className={`w-full py-4 text-xs font-mono tracking-wider uppercase flex items-center justify-center gap-2 rounded-full transition-all duration-300 shadow-md ${
+          isAdded
+            ? "bg-emerald-800 hover:bg-emerald-900 text-white font-semibold"
+            : "btn-primary hover:scale-[1.02] active:scale-98"
+        }`}
       >
         {isLoading ? (
           <>
             <Loader2 className="w-4 h-4 animate-spin" />
             <span>Adding to Cart...</span>
+          </>
+        ) : isAdded ? (
+          <>
+            <Check className="w-4 h-4 text-emerald-300" />
+            <span>Added to Bag — View Cart</span>
+            <ArrowRight className="w-4 h-4" />
           </>
         ) : (
           <>
@@ -108,13 +125,13 @@ export default function AddToCartButton({
         )}
       </button>
 
-      {/* Feedback Message */}
-      {message && (
-        <div className={`p-3 rounded-xl text-xs font-mono flex items-center justify-center gap-2 animate-in fade-in duration-200 ${message.type === "success" ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" : "bg-rose-500/10 text-rose-400 border border-rose-500/20"}`}>
-          {message.type === "success" ? <Check className="w-4 h-4 flex-shrink-0" /> : <AlertCircle className="w-4 h-4 flex-shrink-0" />}
-          <span>{message.text}</span>
+      {/* Error Message */}
+      {errorMessage && (
+        <div className="p-3 rounded-2xl text-xs font-mono flex items-center justify-center gap-2 bg-rose-500/10 text-rose-700 border border-rose-500/20">
+          <span>{errorMessage}</span>
         </div>
       )}
     </div>
   );
 }
+

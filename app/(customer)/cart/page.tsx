@@ -4,8 +4,9 @@ import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { Minus, Plus, Trash2, ShoppingBag, ArrowRight, ShieldCheck, Loader2 } from "lucide-react";
+import { Minus, Plus, Trash2, ShoppingBag, ArrowRight, ShieldCheck, Loader2, Sparkles } from "lucide-react";
 import Navbar from "@/components/ui/Navbar";
+import Footer from "@/components/ui/Footer";
 
 interface CartItem {
   productId: string;
@@ -105,10 +106,10 @@ export default function CartPage() {
           amount,
           currency: "INR",
           order_id: razorpayOrderId,
-          name: "ShopIN Pro",
-          description: "Order Checkout",
+          name: "BRG Finery",
+          description: "Luxury Apparel Checkout",
           prefill: { name: userName, email: userEmail },
-          theme: { color: "#4f46e5" },
+          theme: { color: "#1e3a2b" },
           handler: async (response: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string }) => {
             const confirmRes = await fetch("/api/checkout/confirm", {
               method: "POST",
@@ -147,8 +148,8 @@ export default function CartPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#0a0a0f] text-[#a1a1aa] flex items-center justify-center">
-        <Loader2 className="w-6 h-6 text-indigo-400 animate-spin" />
+      <div className="min-h-screen bg-brand-bg text-brand-heading flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-brand-accent animate-spin" />
       </div>
     );
   }
@@ -156,68 +157,77 @@ export default function CartPage() {
   const isEmpty = !cartData || cartData.items.length === 0;
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] text-[#a1a1aa]">
+    <div className="min-h-screen bg-brand-bg text-brand-heading selection:bg-[#7d4000] selection:text-white relative overflow-x-hidden">
       <Navbar />
 
-      <main className="max-w-6xl mx-auto px-6 sm:px-8 py-12">
-        <div className="mb-10 border-b border-white/[0.06] pb-6">
-          <span className="text-xs font-mono text-indigo-400 uppercase tracking-widest block mb-1">BAG</span>
-          <h1 className="text-3xl font-extrabold text-[#f5f5f7] font-display">Shopping Cart</h1>
+      <main className="max-w-7xl mx-auto px-6 sm:px-8 py-10 sm:py-16">
+        <div className="mb-8 sm:mb-12 border-b border-brand-accent/15 pb-6">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-brand-bg-light border border-brand-accent/20 text-xs font-mono tracking-widest uppercase text-brand-accent mb-2">
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>YOUR BAG SELECTION</span>
+          </div>
+          <h1 className="text-3xl sm:text-5xl font-serif font-bold text-brand-dark uppercase tracking-tight">
+            Shopping Cart
+          </h1>
         </div>
 
         {isEmpty ? (
-          <div className="glass-panel rounded-3xl p-16 text-center space-y-4">
-            <ShoppingBag className="w-12 h-12 text-white/20 mx-auto" />
-            <h2 className="text-[#f5f5f7] text-lg font-bold font-display">Your cart is empty</h2>
-            <p className="text-xs text-[#71717a] max-w-xs mx-auto">
-              Explore our curated catalog and add products to your cart.
+          <div className="p-12 sm:p-20 text-center space-y-5 rounded-3xl bg-brand-bg-light border border-brand-accent/15 shadow-xs max-w-2xl mx-auto">
+            <div className="w-16 h-16 rounded-full bg-brand-bg flex items-center justify-center mx-auto text-brand-dark">
+              <ShoppingBag className="w-8 h-8 opacity-60" />
+            </div>
+            <h2 className="text-2xl font-serif font-bold text-brand-dark">Your Shopping Cart is Empty</h2>
+            <p className="text-xs sm:text-sm font-sans text-brand-heading/70 max-w-sm mx-auto">
+              Explore our luxury apparel collections and add signature pieces to your cart.
             </p>
-            <div className="pt-2">
-              <Link href="/shop" className="btn-primary inline-flex px-6 py-3 text-xs tracking-wider uppercase">
+            <div className="pt-3">
+              <Link href="/shop" className="btn-primary inline-flex px-8 py-3.5 text-xs sm:text-sm font-mono uppercase tracking-wider shadow-md hover:scale-105 transition-transform">
                 Browse Shop
               </Link>
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             {/* Cart Items List */}
             <div className="lg:col-span-8 space-y-4">
               {cartData?.items.map((item) => (
-                <div key={item.productId} className="glass-panel rounded-2xl p-5 flex gap-5 items-center">
-                  <div className="relative w-20 h-20 flex-shrink-0 rounded-xl overflow-hidden bg-[#14141f] border border-white/10">
-                    <Image
-                      src={item.image || `https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1000&auto=format&fit=crop`}
-                      alt={item.name}
-                      fill
-                      className="object-cover"
-                      sizes="80px"
-                    />
+                <div key={item.productId} className="p-4 sm:p-5 rounded-3xl bg-brand-bg-light border border-brand-accent/15 shadow-xs flex flex-col sm:flex-row gap-4 sm:gap-6 items-start sm:items-center justify-between transition-all hover:border-brand-accent/30">
+                  <div className="flex items-center gap-4 min-w-0 w-full sm:w-auto">
+                    <div className="relative w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0 rounded-2xl overflow-hidden bg-brand-bg border border-brand-accent/10">
+                      <Image
+                        src={item.image || `https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1000&auto=format&fit=crop`}
+                        alt={item.name}
+                        fill
+                        className="object-cover"
+                        sizes="96px"
+                      />
+                    </div>
+
+                    <div className="flex-1 min-w-0 space-y-1">
+                      <Link href={`/shop/${item.slug}`} className="text-brand-dark font-serif font-bold text-base sm:text-lg hover:text-brand-accent transition-colors line-clamp-1">
+                        {item.name}
+                      </Link>
+                      <p className="text-xs font-mono text-brand-heading/70">₹{(item.price / 100).toLocaleString("en-IN")} EACH</p>
+                    </div>
                   </div>
 
-                  <div className="flex-1 min-w-0">
-                    <Link href={`/shop/${item.slug}`} className="text-[#f5f5f7] font-semibold text-base font-display hover:text-indigo-300 transition-colors line-clamp-1">
-                      {item.name}
-                    </Link>
-                    <p className="text-xs font-mono text-[#71717a] mt-1">₹{(item.price / 100).toLocaleString("en-IN")} EACH</p>
-                  </div>
-
-                  {/* Quantity Controls */}
-                  <div className="flex items-center gap-3">
-                    <div className="flex items-center bg-[#14141f] border border-white/10 rounded-xl overflow-hidden">
+                  <div className="flex items-center justify-between sm:justify-end gap-4 w-full sm:w-auto border-t sm:border-t-0 border-brand-accent/10 pt-3 sm:pt-0">
+                    {/* Quantity Controls */}
+                    <div className="flex items-center bg-brand-bg border border-brand-accent/20 rounded-full px-1.5 py-1">
                       <button
                         onClick={() => updateQuantity(item.productId, item.quantity - 1)}
                         disabled={updatingId === item.productId}
-                        className="p-2 text-[#a1a1aa] hover:text-white disabled:opacity-40 transition-colors"
+                        className="p-1.5 text-brand-dark hover:bg-brand-bg-light rounded-full disabled:opacity-40 transition-colors"
                       >
                         <Minus className="w-3.5 h-3.5" />
                       </button>
-                      <span className="px-3 py-1 font-mono text-xs font-semibold text-[#f5f5f7]">
+                      <span className="px-3 font-mono text-xs font-bold text-brand-dark">
                         {updatingId === item.productId ? "..." : item.quantity}
                       </span>
                       <button
                         onClick={() => updateQuantity(item.productId, item.quantity + 1)}
                         disabled={updatingId === item.productId || item.quantity >= item.stock}
-                        className="p-2 text-[#a1a1aa] hover:text-white disabled:opacity-40 transition-colors"
+                        className="p-1.5 text-brand-dark hover:bg-brand-bg-light rounded-full disabled:opacity-40 transition-colors"
                       >
                         <Plus className="w-3.5 h-3.5" />
                       </button>
@@ -227,16 +237,17 @@ export default function CartPage() {
                       id={`remove-item-${item.productId}`}
                       onClick={() => removeItem(item.productId)}
                       disabled={updatingId === item.productId}
-                      className="p-2 text-rose-400/60 hover:text-rose-400 disabled:opacity-40 transition-colors"
+                      title="Remove item"
+                      className="p-2 text-rose-600/70 hover:text-rose-700 disabled:opacity-40 transition-colors rounded-full hover:bg-rose-50"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
-                  </div>
 
-                  <div className="text-right min-w-[5rem]">
-                    <span className="text-[#f5f5f7] font-bold font-display text-base">
-                      ₹{(item.lineTotal / 100).toLocaleString("en-IN")}
-                    </span>
+                    <div className="text-right min-w-[5.5rem]">
+                      <span className="text-brand-dark font-serif font-bold text-base sm:text-lg">
+                        ₹{(item.lineTotal / 100).toLocaleString("en-IN")}
+                      </span>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -244,21 +255,23 @@ export default function CartPage() {
 
             {/* Order Summary Side Panel */}
             <div className="lg:col-span-4">
-              <div className="glass-panel rounded-2xl p-6 space-y-6 sticky top-28 border border-white/[0.1]">
-                <h2 className="text-lg font-bold text-[#f5f5f7] font-display">Order Summary</h2>
+              <div className="p-6 sm:p-8 rounded-3xl bg-brand-bg-light border border-brand-accent/15 shadow-xs space-y-6 sticky top-28">
+                <h2 className="text-xl font-serif font-bold text-brand-dark uppercase border-b border-brand-accent/15 pb-4">
+                  Order Summary
+                </h2>
 
-                <div className="space-y-3 text-xs font-mono">
+                <div className="space-y-3.5 text-xs font-mono text-brand-heading">
                   <div className="flex justify-between">
-                    <span className="text-[#71717a]">SUBTOTAL</span>
-                    <span className="text-[#f5f5f7]">₹{(cartData.subtotal / 100).toLocaleString("en-IN")}</span>
+                    <span className="text-brand-heading/70">SUBTOTAL</span>
+                    <span className="font-semibold text-brand-dark">₹{(cartData.subtotal / 100).toLocaleString("en-IN")}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-[#71717a]">ESTIMATED GST (18%)</span>
-                    <span className="text-[#f5f5f7]">₹{(cartData.tax / 100).toLocaleString("en-IN")}</span>
+                    <span className="text-brand-heading/70">ESTIMATED GST (18%)</span>
+                    <span className="font-semibold text-brand-dark">₹{(cartData.tax / 100).toLocaleString("en-IN")}</span>
                   </div>
-                  <div className="border-t border-white/[0.06] pt-3 flex justify-between text-sm font-bold">
-                    <span className="text-[#f5f5f7] font-display">TOTAL AMOUNT</span>
-                    <span className="text-indigo-400 font-display text-base">
+                  <div className="border-t border-brand-accent/15 pt-4 flex justify-between text-sm font-bold">
+                    <span className="text-brand-dark font-serif uppercase">TOTAL AMOUNT</span>
+                    <span className="text-brand-accent font-mono text-base font-bold">
                       ₹{(cartData.total / 100).toLocaleString("en-IN")}
                     </span>
                   </div>
@@ -268,7 +281,7 @@ export default function CartPage() {
                   id="checkout-btn"
                   onClick={handleCheckout}
                   disabled={isCheckingOut}
-                  className="btn-primary w-full py-4 text-xs tracking-wider uppercase flex items-center justify-center gap-2"
+                  className="btn-primary w-full py-4 text-xs font-mono tracking-wider uppercase flex items-center justify-center gap-2 shadow-md hover:scale-[1.02] transition-all"
                 >
                   {isCheckingOut ? (
                     <>
@@ -283,15 +296,17 @@ export default function CartPage() {
                   )}
                 </button>
 
-                <div className="flex items-center justify-center gap-2 text-[11px] font-mono text-[#71717a] pt-2">
-                  <ShieldCheck className="w-4 h-4 text-indigo-400" />
-                  <span>Secured by Razorpay</span>
+                <div className="flex items-center justify-center gap-2 text-[11px] font-mono text-brand-heading/70 pt-1">
+                  <ShieldCheck className="w-4 h-4 text-brand-accent" />
+                  <span>Secured 256-Bit Encrypted Checkout</span>
                 </div>
               </div>
             </div>
           </div>
         )}
       </main>
+
+      <Footer />
     </div>
   );
 }

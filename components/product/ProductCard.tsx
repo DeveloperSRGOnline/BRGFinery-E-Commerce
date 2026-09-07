@@ -42,7 +42,7 @@ export default function ProductCard({ product }: { product: Product }) {
 
   return (
     <Link href={`/shop/${product.slug}`} className="group block h-full">
-      <div className="bg-white rounded-3xl overflow-hidden flex flex-col h-full border border-brand-accent/15 shadow-md hover:shadow-xl transition-all duration-300 group-hover:-translate-y-1">
+      <div className="bg-white rounded-2xl sm:rounded-3xl overflow-hidden flex flex-col h-full border border-brand-accent/15 shadow-sm hover:shadow-md transition-all duration-300 group-hover:-translate-y-0.5">
         {/* Product Visual */}
         <div className="relative aspect-[4/3] bg-[#f4ece1] overflow-hidden">
           {imageUrl ? (
@@ -55,26 +55,26 @@ export default function ProductCard({ product }: { product: Product }) {
             />
           ) : (
             <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[#f4ece1] to-[#e2ceb9]">
-              <svg className="w-10 h-10 text-brand-accent/20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-9 h-9 text-brand-accent/20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
               </svg>
             </div>
           )}
 
           {/* Badges */}
-          <div className="absolute top-3 left-3 right-3 flex items-center justify-between pointer-events-none z-10">
+          <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between pointer-events-none z-10">
             {category ? (
-              <span className="text-[10px] uppercase tracking-wider font-mono font-bold text-brand-heading bg-white/90 backdrop-blur-md border border-brand-accent/20 px-3 py-1 rounded-full shadow-xs">
+              <span className="text-[10px] uppercase tracking-wider font-mono font-bold text-brand-heading bg-white/90 backdrop-blur-md border border-brand-accent/20 px-2.5 py-0.5 rounded-full shadow-xs">
                 {category.name}
               </span>
             ) : <span />}
 
             {product.stock === 0 ? (
-              <span className="text-[10px] uppercase tracking-wider font-mono font-bold text-rose-700 bg-rose-50 border border-rose-200 px-3 py-1 rounded-full shadow-xs">
+              <span className="text-[10px] uppercase tracking-wider font-mono font-bold text-rose-700 bg-rose-50 border border-rose-200 px-2.5 py-0.5 rounded-full shadow-xs">
                 Sold Out
               </span>
             ) : product.stock < 5 ? (
-              <span className="text-[10px] uppercase tracking-wider font-mono font-bold text-amber-800 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-full shadow-xs">
+              <span className="text-[10px] uppercase tracking-wider font-mono font-bold text-amber-800 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full shadow-xs">
                 {product.stock} Left
               </span>
             ) : null}
@@ -82,22 +82,22 @@ export default function ProductCard({ product }: { product: Product }) {
         </div>
 
         {/* Details */}
-        <div className="p-5 flex flex-col flex-1 justify-between gap-4 text-left">
-          <div className="space-y-2">
-            <h3 className="text-brand-heading font-serif font-bold text-lg leading-snug line-clamp-2 group-hover:text-brand-accent transition-colors">
+        <div className="p-4 flex flex-col flex-1 justify-between gap-3 text-left">
+          <div className="space-y-1.5">
+            <h3 className="text-brand-heading font-serif font-bold text-base sm:text-lg leading-snug line-clamp-2 group-hover:text-brand-accent transition-colors">
               {product.name}
             </h3>
             <StarRating avg={product.ratingAvg} count={product.ratingCount} />
           </div>
 
-          <div className="flex items-center justify-between pt-3 border-t border-brand-accent/15">
+          <div className="flex items-center justify-between pt-2.5 border-t border-brand-accent/15">
             <div>
-              <span className="text-[10px] font-mono font-bold text-brand-accent-subtle block leading-none mb-1 uppercase tracking-wider">PRICE</span>
-              <span className="text-xl font-bold text-brand-heading font-serif tracking-tight">
+              <span className="text-[9px] font-mono font-bold text-brand-accent-subtle block leading-none mb-0.5 uppercase tracking-wider">PRICE</span>
+              <span className="text-lg sm:text-xl font-bold text-brand-heading font-serif tracking-tight">
                 ₹{priceInRupees.toLocaleString("en-IN")}
               </span>
             </div>
-            <span className="w-9 h-9 rounded-xl bg-brand-dark group-hover:bg-brand-dark-hover text-white flex items-center justify-center transition-all shadow-xs group-hover:scale-105">
+            <span className="w-8 h-8 rounded-xl bg-brand-dark group-hover:bg-brand-dark-hover text-white flex items-center justify-center transition-all shadow-xs group-hover:scale-105 text-xs">
               →
             </span>
           </div>

@@ -31,6 +31,7 @@ export default function FilterBar({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   const [searchVal, setSearchVal] = useState(currentQuery ?? "");
   const [minPriceVal, setMinPriceVal] = useState(currentMinPrice !== undefined ? String(currentMinPrice / 100) : "");
@@ -42,6 +43,18 @@ export default function FilterBar({
     setMinPriceVal(currentMinPrice !== undefined ? String(currentMinPrice / 100) : "");
     setMaxPriceVal(currentMaxPrice !== undefined ? String(currentMaxPrice / 100) : "");
   }, [currentQuery, currentMinPrice, currentMaxPrice]);
+
+  // Lock body scroll when mobile filter sheet is open
+  useEffect(() => {
+    if (isMobileOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isMobileOpen]);
 
   const updateParams = useCallback(
     (updates: Record<string, string | undefined>) => {
@@ -74,10 +87,202 @@ export default function FilterBar({
     currentCategory || currentMinPrice || currentMaxPrice || currentSort || currentQuery
   );
 
+  const activeFilterCount = [
+    Boolean(currentCategory),
+    Boolean(currentMinPrice || currentMaxPrice),
+    Boolean(currentSort),
+  ].filter(Boolean).length;
+
+  const renderFilterContent = () => (
+    <>
+      <div className="flex items-center justify-between border-b border-brand-accent/15 pb-4">
+        <div className="flex items-center gap-2">
+          <SlidersHorizontal className="w-4 h-4 text-brand-accent" />
+          <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-brand-heading">Filter & Sort</h3>
+        </div>
+        {isPending && <Loader2 className="w-3.5 h-3.5 text-brand-accent animate-spin" />}
+      </div>
+
+      {/* Categories Pills/List */}
+      <div className="space-y-3">
+        <label className="block text-[11px] font-mono text-brand-accent-subtle font-bold uppercase tracking-widest flex items-center justify-between">
+          <span>COLLECTIONS</span>
+          {currentCategory && (
+            <button
+              onClick={() => updateParams({ category: undefined })}
+              className="text-[10px] text-brand-accent hover:underline font-semibold"
+            >
+              Clear
+            </button>
+          )}
+        </label>
+
+        <div className="space-y-1">
+          <button
+            onClick={() => updateParams({ category: undefined })}
+            className={`w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-mono transition-all flex items-center justify-between ${!currentCategory ? "bg-brand-dark text-white font-bold shadow-xs" : "text-brand-heading hover:bg-brand-bg/80"}`}
+          >
+            <span>All Collections</span>
+            {!currentCategory && <Check className="w-3.5 h-3.5 text-white" />}
+          </button>
+
+          {categories.map((cat) => {
+            const isActive = currentCategory === cat.slug;
+            return (
+              <button
+                key={cat._id}
+                onClick={() => updateParams({ category: isActive ? undefined : cat.slug })}
+                className={`w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-mono transition-all flex items-center justify-between ${isActive ? "bg-brand-dark text-white font-bold shadow-xs" : "text-brand-heading hover:bg-brand-bg/80"}`}
+              >
+                <span>{cat.name}</span>
+                {isActive && <Check className="w-3.5 h-3.5 text-white" />}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Price Range Filter Inputs */}
+      <div className="space-y-3 border-t border-brand-accent/15 pt-5">
+        <label className="block text-[11px] font-mono text-brand-accent-subtle font-bold uppercase tracking-widest flex items-center justify-between">
+          <span>PRICE (₹)</span>
+          {(minPriceVal || maxPriceVal) && (
+            <button
+              onClick={() => {
+                setMinPriceVal("");
+                setMaxPriceVal("");
+                updateParams({ minPrice: undefined, maxPrice: undefined });
+              }}
+              className="text-[10px] text-brand-accent hover:underline font-semibold"
+            >
+              Reset
+            </button>
+          )}
+        </label>
+
+        <div className="grid grid-cols-2 gap-2">
+          <input
+            type="number"
+            min={0}
+            placeholder="Min"
+            value={minPriceVal}
+            onChange={(e) => setMinPriceVal(e.target.value)}
+            className="w-full px-3 py-2 bg-white border border-brand-accent/20 rounded-xl text-brand-heading placeholder:text-brand-accent-muted text-xs focus:outline-none focus:border-brand-dark transition-all font-mono"
+          />
+          <input
+            type="number"
+            min={0}
+            placeholder="Max"
+            value={maxPriceVal}
+            onChange={(e) => setMaxPriceVal(e.target.value)}
+            className="w-full px-3 py-2 bg-white border border-brand-accent/20 rounded-xl text-brand-heading placeholder:text-brand-accent-muted text-xs focus:outline-none focus:border-brand-dark transition-all font-mono"
+          />
+        </div>
+
+        <button
+          onClick={handlePriceApply}
+          className="w-full py-2 bg-brand-bg hover:bg-brand-bg-mobile border border-brand-accent/20 rounded-xl text-xs font-mono font-semibold uppercase text-brand-heading transition-all shadow-xs"
+        >
+          Apply Price Filter
+        </button>
+      </div>
+
+      {/* Sort Order Selector */}
+      <div className="space-y-3 border-t border-brand-accent/15 pt-5">
+        <label htmlFor="filter-sort" className="block text-[11px] font-mono text-brand-accent-subtle font-bold uppercase tracking-widest">
+          SORT ORDER
+        </label>
+        <select
+          id="filter-sort"
+          value={currentSort ?? ""}
+          onChange={(e) => updateParams({ sort: e.target.value || undefined })}
+          className="w-full px-3.5 py-2.5 bg-white border border-brand-accent/20 rounded-xl text-brand-heading text-xs focus:outline-none focus:border-brand-dark transition-all cursor-pointer font-mono font-semibold"
+        >
+          <option value="" className="bg-white">Newest Arrivals</option>
+          <option value="price_asc" className="bg-white">Price: Low to High</option>
+          <option value="price_desc" className="bg-white">Price: High to Low</option>
+        </select>
+      </div>
+
+      {/* Global Reset */}
+      {hasActiveFilters && (
+        <button
+          id="clear-filters-btn"
+          onClick={() => {
+            setSearchVal("");
+            setMinPriceVal("");
+            setMaxPriceVal("");
+            router.push(pathname);
+          }}
+          className="btn-secondary w-full py-2.5 text-xs font-mono uppercase text-brand-heading flex items-center justify-center gap-2 pt-3 border-t border-brand-accent/15"
+        >
+          <RotateCcw className="w-3.5 h-3.5" />
+          <span>Clear All Filters</span>
+        </button>
+      )}
+    </>
+  );
+
   return (
     <div className="space-y-6">
-      {/* Search Input Bar */}
-      <div className="relative">
+      {/* Mobile Bar: Search + Filter Toggle Button */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 lg:hidden">
+        <div className="relative flex-1">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              updateParams({ q: searchVal || undefined });
+            }}
+            className="relative flex items-center"
+          >
+            <Search className="w-4 h-4 text-brand-accent-subtle absolute left-4 pointer-events-none" />
+            <input
+              id="search-query-mobile"
+              name="q"
+              type="text"
+              value={searchVal}
+              onChange={(e) => setSearchVal(e.target.value)}
+              placeholder="SEARCH CATALOG..."
+              className="w-full pl-11 pr-20 py-3 bg-brand-bg-light border border-brand-accent/20 rounded-2xl text-brand-heading placeholder:text-brand-accent-muted text-xs focus:outline-none focus:border-brand-dark transition-all font-mono shadow-xs"
+            />
+            {searchVal && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchVal("");
+                  updateParams({ q: undefined });
+                }}
+                className="absolute right-14 text-brand-accent-muted hover:text-brand-heading transition-colors"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
+            <button
+              type="submit"
+              className="absolute right-2 px-3.5 py-1.5 bg-brand-dark hover:bg-brand-dark-hover text-white rounded-xl text-[11px] font-mono font-semibold uppercase tracking-wider transition-colors shadow-xs"
+            >
+              Go
+            </button>
+          </form>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => setIsMobileOpen(true)}
+          className="flex items-center justify-center gap-2 px-5 py-3 bg-brand-bg-light hover:bg-white border border-brand-accent/20 rounded-2xl text-brand-heading text-xs font-mono font-bold uppercase tracking-wider transition-all shadow-xs"
+        >
+          <SlidersHorizontal className="w-4 h-4 text-brand-accent" />
+          <span>Filters & Sort</span>
+          {activeFilterCount > 0 && (
+            <span className="w-5 h-5 rounded-full bg-brand-dark text-white text-[10px] font-mono font-bold flex items-center justify-center">
+              {activeFilterCount}
+            </span>
+          )}
+        </button>
+      </div>
+
+      {/* Desktop Search Bar */}
+      <div className="relative hidden lg:block">
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -116,136 +321,53 @@ export default function FilterBar({
         </form>
       </div>
 
-      {/* Accordion / Sidebar Filter Card */}
-      <div className="bg-brand-bg-light rounded-3xl p-6 border border-brand-accent/15 space-y-6 shadow-xs">
-        
-        <div className="flex items-center justify-between border-b border-brand-accent/15 pb-4">
-          <div className="flex items-center gap-2">
-            <SlidersHorizontal className="w-4 h-4 text-brand-accent" />
-            <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-brand-heading">Filter & Sort</h3>
-          </div>
-          {isPending && <Loader2 className="w-3.5 h-3.5 text-brand-accent animate-spin" />}
-        </div>
-
-        {/* Categories Pills/List */}
-        <div className="space-y-3">
-          <label className="block text-[11px] font-mono text-brand-accent-subtle font-bold uppercase tracking-widest flex items-center justify-between">
-            <span>COLLECTIONS</span>
-            {currentCategory && (
-              <button
-                onClick={() => updateParams({ category: undefined })}
-                className="text-[10px] text-brand-accent hover:underline font-semibold"
-              >
-                Clear
-              </button>
-            )}
-          </label>
-
-          <div className="space-y-1">
-            <button
-              onClick={() => updateParams({ category: undefined })}
-              className={`w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-mono transition-all flex items-center justify-between ${!currentCategory ? "bg-brand-dark text-white font-bold shadow-xs" : "text-brand-heading hover:bg-brand-bg/80"}`}
-            >
-              <span>All Collections</span>
-              {!currentCategory && <Check className="w-3.5 h-3.5 text-white" />}
-            </button>
-
-            {categories.map((cat) => {
-              const isActive = currentCategory === cat.slug;
-              return (
-                <button
-                  key={cat._id}
-                  onClick={() => updateParams({ category: isActive ? undefined : cat.slug })}
-                  className={`w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-mono transition-all flex items-center justify-between ${isActive ? "bg-brand-dark text-white font-bold shadow-xs" : "text-brand-heading hover:bg-brand-bg/80"}`}
-                >
-                  <span>{cat.name}</span>
-                  {isActive && <Check className="w-3.5 h-3.5 text-white" />}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Price Range Filter Inputs */}
-        <div className="space-y-3 border-t border-brand-accent/15 pt-5">
-          <label className="block text-[11px] font-mono text-brand-accent-subtle font-bold uppercase tracking-widest flex items-center justify-between">
-            <span>PRICE (₹)</span>
-            {(minPriceVal || maxPriceVal) && (
-              <button
-                onClick={() => {
-                  setMinPriceVal("");
-                  setMaxPriceVal("");
-                  updateParams({ minPrice: undefined, maxPrice: undefined });
-                }}
-                className="text-[10px] text-brand-accent hover:underline font-semibold"
-              >
-                Reset
-              </button>
-            )}
-          </label>
-
-          <div className="grid grid-cols-2 gap-2">
-            <input
-              type="number"
-              min={0}
-              placeholder="Min"
-              value={minPriceVal}
-              onChange={(e) => setMinPriceVal(e.target.value)}
-              className="w-full px-3 py-2 bg-white border border-brand-accent/20 rounded-xl text-brand-heading placeholder:text-brand-accent-muted text-xs focus:outline-none focus:border-brand-dark transition-all font-mono"
-            />
-            <input
-              type="number"
-              min={0}
-              placeholder="Max"
-              value={maxPriceVal}
-              onChange={(e) => setMaxPriceVal(e.target.value)}
-              className="w-full px-3 py-2 bg-white border border-brand-accent/20 rounded-xl text-brand-heading placeholder:text-brand-accent-muted text-xs focus:outline-none focus:border-brand-dark transition-all font-mono"
-            />
-          </div>
-
-          <button
-            onClick={handlePriceApply}
-            className="w-full py-2 bg-brand-bg hover:bg-brand-bg-mobile border border-brand-accent/20 rounded-xl text-xs font-mono font-semibold uppercase text-brand-heading transition-all shadow-xs"
-          >
-            Apply Price Filter
-          </button>
-        </div>
-
-        {/* Sort Order Selector */}
-        <div className="space-y-3 border-t border-brand-accent/15 pt-5">
-          <label htmlFor="filter-sort" className="block text-[11px] font-mono text-brand-accent-subtle font-bold uppercase tracking-widest">
-            SORT ORDER
-          </label>
-          <select
-            id="filter-sort"
-            value={currentSort ?? ""}
-            onChange={(e) => updateParams({ sort: e.target.value || undefined })}
-            className="w-full px-3.5 py-2.5 bg-white border border-brand-accent/20 rounded-xl text-brand-heading text-xs focus:outline-none focus:border-brand-dark transition-all cursor-pointer font-mono font-semibold"
-          >
-            <option value="" className="bg-white">Newest Arrivals</option>
-            <option value="price_asc" className="bg-white">Price: Low to High</option>
-            <option value="price_desc" className="bg-white">Price: High to Low</option>
-          </select>
-        </div>
-
-        {/* Global Reset */}
-        {hasActiveFilters && (
-          <button
-            id="clear-filters-btn"
-            onClick={() => {
-              setSearchVal("");
-              setMinPriceVal("");
-              setMaxPriceVal("");
-              router.push(pathname);
-            }}
-            className="btn-secondary w-full py-2.5 text-xs font-mono uppercase text-brand-heading flex items-center justify-center gap-2 pt-3 border-t border-brand-accent/15"
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-            <span>Clear All Filters</span>
-          </button>
-        )}
-
+      {/* Desktop Sidebar Card */}
+      <div className="bg-brand-bg-light rounded-3xl p-5 border border-brand-accent/15 space-y-4 shadow-xs hidden lg:block">
+        {renderFilterContent()}
       </div>
+
+      {/* Mobile Filter Drawer / Modal Overlay */}
+      {isMobileOpen && (
+        <div className="fixed inset-0 z-50 flex flex-col justify-end lg:hidden">
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
+            onClick={() => setIsMobileOpen(false)}
+          />
+
+          {/* Drawer Sheet */}
+          <div className="relative z-10 w-full max-h-[85vh] overflow-y-auto bg-brand-bg rounded-t-3xl border-t border-brand-accent/20 p-6 space-y-6 shadow-2xl animate-in slide-in-from-bottom duration-300">
+            <div className="flex items-center justify-between border-b border-brand-accent/15 pb-4 sticky top-0 bg-brand-bg z-20">
+              <div className="flex items-center gap-2">
+                <SlidersHorizontal className="w-4 h-4 text-brand-accent" />
+                <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-brand-heading">Filter & Sort</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsMobileOpen(false)}
+                className="p-1.5 text-brand-accent-muted hover:text-brand-heading rounded-xl bg-brand-bg-light border border-brand-accent/15"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="space-y-6">
+              {renderFilterContent()}
+            </div>
+
+            <div className="pt-4 border-t border-brand-accent/15 sticky bottom-0 bg-brand-bg pb-2">
+              <button
+                type="button"
+                onClick={() => setIsMobileOpen(false)}
+                className="w-full py-3 bg-brand-dark hover:bg-brand-dark-hover text-white rounded-2xl text-xs font-mono font-bold uppercase tracking-wider transition-colors shadow-md text-center"
+              >
+                View Products
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+

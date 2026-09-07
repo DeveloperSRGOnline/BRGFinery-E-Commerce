@@ -39,25 +39,11 @@ export default function Navbar() {
     }
   };
 
-  // Close dropdowns when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as HTMLElement;
-      if (isProductsDropdownOpen && !target.closest('.products-dropdown')) {
-        setIsProductsDropdownOpen(false);
-      }
-      if (isSearchOpen && !target.closest('.search-container')) {
-        setIsSearchOpen(false);
-      }
-    };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isProductsDropdownOpen, isSearchOpen]);
 
   return (
     <header className="sticky top-0 z-50 backdrop-blur-xl bg-transparent py-2">
-      <div className="max-w-7xl mx-auto px-6 sm:px-8">
+      <div className="max-w-7xl mx-auto px-6 sm:px-8 relative">
         <div className="flex items-center justify-between h-24 sm:h-28">
           {/* Logo Badge */}
           <Link href="/" className="flex items-center gap-4 group py-2">
@@ -119,7 +105,7 @@ export default function Navbar() {
                 </div>
               )}
             </div>
-            <Link href="/categories" className={`px-5 py-2 rounded-full font-semibold transition-colors ${isActive('/categories') ? 'bg-brand-dark text-white' : 'text-brand-heading hover:bg-brand-bg'}`}>
+            <Link href="/about" className={`px-5 py-2 rounded-full font-semibold transition-colors ${isActive('/about') ? 'bg-brand-dark text-white' : 'text-brand-heading hover:bg-brand-bg'}`}>
               About
             </Link>
             <Link href="/contactus" className={`px-5 py-2 rounded-full font-semibold transition-colors ${isActive('/contactus') ? 'bg-brand-dark text-white' : 'text-brand-heading hover:bg-brand-bg'}`}>
@@ -202,54 +188,114 @@ export default function Navbar() {
           </button>
         </div>
 
-        {/* Mobile Dropdown */}
+        {/* Floating Mobile Dropdown Overlay */}
         {isMenuOpen && (
-          <div className="md:hidden py-6 border-t border-brand-accent/15 space-y-4 font-mono text-sm uppercase bg-brand-bg-mobile rounded-2xl p-4 mt-2">
-            {/* Mobile Search */}
-            <form onSubmit={handleSearchSubmit} className="flex items-center gap-2 mb-2">
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="SEARCH PRODUCTS..."
-                className="w-full bg-white border border-brand-accent/20 rounded-xl px-3 py-2 text-xs font-mono text-brand-heading focus:outline-none"
-              />
-              <button type="submit" className="p-2 bg-brand-dark text-white rounded-xl">
-                <Search className="w-4 h-4" />
-              </button>
-            </form>
+          <>
+            {/* Transparent Dismiss Backdrop */}
+            <div
+              className="fixed inset-0 z-40 md:hidden"
+              onClick={() => setIsMenuOpen(false)}
+            />
 
-            <Link href="/shop?sort=new" className={`block font-bold py-1.5 ${pathname.startsWith('/shop') ? 'text-white bg-brand-dark px-4 py-2.5 rounded-full' : 'text-brand-heading'}`} onClick={() => setIsMenuOpen(false)}>New Arrivals</Link>
-            <Link href="/" className={`block font-bold py-1.5 ${isActive('/') ? 'text-white bg-brand-dark px-4 py-2.5 rounded-full' : 'text-brand-heading'}`} onClick={() => setIsMenuOpen(false)}>Home</Link>
-            <div>
-              <button 
-                onClick={() => setIsMobileShopOpen(!isMobileShopOpen)}
-                className="flex items-center justify-between w-full font-bold text-brand-heading py-1.5"
+            {/* Floating Mobile Menu Card */}
+            <div className="absolute left-4 right-4 sm:left-6 sm:right-6 top-full mt-2 z-50 md:hidden py-5 px-4 border border-brand-accent/20 space-y-3 font-mono text-xs uppercase bg-brand-bg-light/95 backdrop-blur-xl rounded-3xl shadow-2xl text-brand-heading animate-in fade-in slide-in-from-top-2 duration-200">
+              {/* Mobile Search */}
+              <form onSubmit={handleSearchSubmit} className="flex items-center gap-2 mb-3">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="SEARCH PRODUCTS..."
+                  className="w-full bg-white border border-brand-accent/20 rounded-2xl px-4 py-2.5 text-xs font-mono text-brand-heading focus:outline-none focus:border-brand-dark shadow-xs"
+                />
+                <button type="submit" className="p-2.5 bg-brand-dark text-white rounded-2xl shadow-xs hover:bg-brand-dark-hover transition-colors">
+                  <Search className="w-4 h-4" />
+                </button>
+              </form>
+
+              <Link
+                href="/"
+                className={`block font-semibold px-4 py-2.5 rounded-2xl transition-all ${isActive('/') ? 'bg-brand-dark text-white font-bold shadow-xs' : 'text-brand-heading hover:bg-brand-bg/80'}`}
+                onClick={() => setIsMenuOpen(false)}
               >
-                SHOP
-                <ChevronDown className={`w-5 h-5 transition-transform ${isMobileShopOpen ? 'rotate-180' : ''}`} />
-              </button>
-              {isMobileShopOpen && (
-                <div className="space-y-2 pl-4 mt-2 border-l-2 border-brand-dark/20">
-                  <Link href="/shop" className={`block py-1.5 ${pathname.startsWith('/shop') ? 'text-white bg-brand-dark px-4 py-2 rounded-full' : 'text-brand-heading'}`} onClick={() => setIsMenuOpen(false)}>All</Link>
-                  <Link href="/shop?category=crop-tshirt" className={`block py-1.5 text-brand-heading`} onClick={() => setIsMenuOpen(false)}>Crop Tshirt</Link>
-                  <Link href="/shop?category=normal-fit" className={`block py-1.5 text-brand-heading`} onClick={() => setIsMenuOpen(false)}>Normal Fit</Link>
-                  <Link href="/shop?category=gen-x" className={`block py-1.5 text-brand-heading`} onClick={() => setIsMenuOpen(false)}>Gen-X</Link>
-                  <Link href="/shop?category=oversized-tshirt" className={`block py-1.5 text-brand-heading`} onClick={() => setIsMenuOpen(false)}>Oversized Tshirt</Link>
+                Home
+              </Link>
+
+              <div>
+                <button 
+                  onClick={() => setIsMobileShopOpen(!isMobileShopOpen)}
+                  className={`flex items-center justify-between w-full font-semibold px-4 py-2.5 rounded-2xl transition-all ${pathname.startsWith('/shop') ? 'bg-brand-dark text-white font-bold shadow-xs' : 'text-brand-heading hover:bg-brand-bg/80'}`}
+                >
+                  <span>SHOP</span>
+                  <ChevronDown className={`w-4 h-4 transition-transform ${isMobileShopOpen ? 'rotate-180' : ''}`} />
+                </button>
+                {isMobileShopOpen && (
+                  <div className="space-y-1.5 pl-4 mt-2 border-l-2 border-brand-dark/20 ml-3">
+                    <Link href="/shop" className={`block px-4 py-2 rounded-xl font-medium transition-all ${pathname === '/shop' ? 'bg-brand-dark text-white font-bold' : 'text-brand-heading hover:bg-brand-bg/80'}`} onClick={() => setIsMenuOpen(false)}>All Items</Link>
+                    <Link href="/shop?category=crop-tshirt" className="block px-4 py-2 rounded-xl text-brand-heading hover:bg-brand-bg/80 transition-all" onClick={() => setIsMenuOpen(false)}>Crop Tshirt</Link>
+                    <Link href="/shop?category=normal-fit" className="block px-4 py-2 rounded-xl text-brand-heading hover:bg-brand-bg/80 transition-all" onClick={() => setIsMenuOpen(false)}>Normal Fit</Link>
+                    <Link href="/shop?category=gen-x" className="block px-4 py-2 rounded-xl text-brand-heading hover:bg-brand-bg/80 transition-all" onClick={() => setIsMenuOpen(false)}>Gen-X</Link>
+                    <Link href="/shop?category=oversized-tshirt" className="block px-4 py-2 rounded-xl text-brand-heading hover:bg-brand-bg/80 transition-all" onClick={() => setIsMenuOpen(false)}>Oversized Tshirt</Link>
+                  </div>
+                )}
+              </div>
+
+              <Link
+                href="/about"
+                className={`block font-semibold px-4 py-2.5 rounded-2xl transition-all ${isActive('/about') ? 'bg-brand-dark text-white font-bold shadow-xs' : 'text-brand-heading hover:bg-brand-bg/80'}`}
+                onClick={() => setIsMenuOpen(false)}
+              >
+                About
+              </Link>
+
+              <Link
+                href="/contactus"
+                className={`block font-semibold px-4 py-2.5 rounded-2xl transition-all ${isActive('/contactus') ? 'bg-brand-dark text-white font-bold shadow-xs' : 'text-brand-heading hover:bg-brand-bg/80'}`}
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Contact Us
+              </Link>
+
+              <Link
+                href="/cart"
+                className={`flex items-center justify-between font-semibold px-4 py-2.5 rounded-2xl transition-all ${isActive('/cart') ? 'bg-brand-dark text-white font-bold shadow-xs' : 'text-brand-heading hover:bg-brand-bg/80'}`}
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <div className="flex items-center gap-2">
+                  <ShoppingBag className="w-4 h-4" />
+                  <span>Cart</span>
+                </div>
+                <span className="px-2.5 py-0.5 rounded-full bg-brand-dark text-white text-[10px] font-bold">{cartCount}</span>
+              </Link>
+
+              {session?.user ? (
+                <Link
+                  href="/profile"
+                  className={`block font-semibold px-4 py-2.5 rounded-2xl transition-all ${isActive('/profile') ? 'bg-brand-dark text-white font-bold shadow-xs' : 'text-brand-heading hover:bg-brand-bg/80'}`}
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Profile ({session.user.name ?? "Account"})
+                </Link>
+              ) : (
+                <div className="pt-3 border-t border-brand-accent/15 flex items-center gap-3">
+                  <Link
+                    href="/login"
+                    className="btn-secondary flex-1 py-2.5 text-center text-xs font-mono uppercase tracking-wider"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Sign In
+                  </Link>
+                  <Link
+                    href="/register"
+                    className="btn-primary flex-1 py-2.5 text-center text-xs font-mono uppercase tracking-wider"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Register
+                  </Link>
                 </div>
               )}
             </div>
-            <Link href="/categories" className={`block py-1.5 ${isActive('/categories') ? 'text-white bg-brand-dark px-4 py-2.5 rounded-full' : 'text-brand-heading'}`} onClick={() => setIsMenuOpen(false)}>Collections</Link>
-            {session?.user && (
-              <>
-                <Link href="/cart" className={`flex items-center justify-between py-1.5 ${isActive('/cart') ? 'text-white bg-brand-dark px-4 py-2.5 rounded-full' : 'text-brand-heading'}`} onClick={() => setIsMenuOpen(false)}>
-                  <span>Cart</span>
-                  <span className="px-2.5 py-0.5 rounded-full bg-brand-accent text-white text-xs">{cartCount}</span>
-                </Link>
-                <Link href="/profile" className={`block py-1.5 ${isActive('/profile') ? 'text-white bg-brand-dark px-4 py-2.5 rounded-full' : 'text-brand-heading'}`} onClick={() => setIsMenuOpen(false)}>Profile</Link>
-              </>
-            )}
-          </div>
+          </>
         )}
       </div>
     </header>

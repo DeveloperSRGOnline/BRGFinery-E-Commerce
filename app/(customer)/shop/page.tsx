@@ -89,28 +89,28 @@ export default async function ShopPage({ searchParams }: PageProps) {
     <div className="min-h-screen bg-brand-bg text-brand-heading selection:bg-[#7d4000] selection:text-white relative overflow-x-hidden">
       <Navbar />
 
-      <main className="max-w-7xl mx-auto px-6 sm:px-8 py-10 sm:py-14">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
         {/* Header */}
-        <div className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-brand-accent/15 pb-8">
+        <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-brand-accent/15 pb-4">
           <div>
-            <span className="text-xs font-mono text-brand-accent-subtle uppercase tracking-[0.25em] block mb-2 font-bold">
+            <span className="text-[10px] font-mono text-brand-accent-subtle uppercase tracking-[0.2em] block mb-1 font-bold">
               CURATED COLLECTION
             </span>
-            <h1 className="text-3xl sm:text-5xl font-extrabold text-brand-heading font-serif uppercase tracking-tight">
+            <h1 className="text-2xl sm:text-4xl font-extrabold text-brand-heading font-serif uppercase tracking-tight">
               LUXURY SHOP
             </h1>
           </div>
-          <p className="text-xs font-mono text-brand-accent-muted bg-brand-bg-light px-4 py-2 rounded-full border border-brand-accent/15 shadow-xs">
+          <p className="text-[11px] font-mono text-brand-accent-muted bg-brand-bg-light px-3.5 py-1.5 rounded-full border border-brand-accent/15 shadow-xs self-start sm:self-auto">
             {total === 0
               ? "0 MATCHES FOUND"
               : `SHOWING ${(page - 1) * 12 + 1}–${Math.min(page * 12, total)} OF ${total} ITEMS`}
           </p>
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-8">
+        <div className="flex flex-col lg:flex-row gap-6">
           {/* Sidebar Filter */}
-          <aside className="lg:w-72 flex-shrink-0">
-            <Suspense fallback={<div className="h-96 bg-brand-bg-light/60 rounded-3xl animate-pulse border border-brand-accent/15" />}>
+          <aside className="lg:w-64 flex-shrink-0">
+            <Suspense fallback={<div className="h-80 bg-brand-bg-light/60 rounded-3xl animate-pulse border border-brand-accent/15" />}>
               <FilterBar
                 categories={categories.map((c) => ({
                   _id: c._id.toString(),
@@ -129,11 +129,11 @@ export default async function ShopPage({ searchParams }: PageProps) {
           {/* Product Grid */}
           <div className="flex-1">
             {products.length === 0 ? (
-              <div className="bg-brand-bg-light rounded-3xl p-16 text-center space-y-4 border border-brand-accent/15 shadow-xs">
-                <div className="w-14 h-14 rounded-2xl bg-brand-bg border border-brand-accent/20 flex items-center justify-center mx-auto text-2xl shadow-inner">
+              <div className="bg-brand-bg-light rounded-3xl p-12 text-center space-y-3 border border-brand-accent/15 shadow-xs">
+                <div className="w-12 h-12 rounded-2xl bg-brand-bg border border-brand-accent/20 flex items-center justify-center mx-auto text-xl shadow-inner">
                   🔍
                 </div>
-                <h3 className="text-brand-heading text-xl font-bold font-serif uppercase">
+                <h3 className="text-brand-heading text-lg font-bold font-serif uppercase">
                   No matching items found
                 </h3>
                 <p className="text-xs text-brand-accent-muted max-w-sm mx-auto font-sans leading-relaxed">
@@ -141,7 +141,7 @@ export default async function ShopPage({ searchParams }: PageProps) {
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
                 {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                 {products.map((product: any) => (
                   <ProductCard key={product._id.toString()} product={{ ...product, _id: product._id.toString() }} />
